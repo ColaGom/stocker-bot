@@ -10,11 +10,10 @@ from urllib.parse import urlencode, urljoin
 KEY = os.environ.get("API_KEY")
 HOST = "http://api.seibro.or.kr/openapi/service/StockSvc/getShotnByMartN1"
 
+
 # 시장별 단축코드 전체 조회
 # martTpcd
 # 11.유가증권시장, 12.코스닥, 13.K-OTC, 14.코넥스, 50.기타시장
-
-
 def stock_short(page_num, market):
     queries = {"pageNo": page_num,
                "numOfRows": 10000, "martTpcd": market}
@@ -36,9 +35,8 @@ def stock_short(page_num, market):
 
     return stocks
 
+
 # 주식 기본 정보
-
-
 def dispatch_basic(stock):
     queries = {"shortIsin": stock.short_id,
                "numOfRows": 10, "pageNo": 1}
@@ -53,7 +51,6 @@ def dispatch_basic(stock):
 
 
 # 주식상장정보
-#
 def dispatch_listing_info(stock):
     queries = {"isin": stock.id,
                "numOfRows": 10, "pageNo": 1}
@@ -65,3 +62,19 @@ def dispatch_listing_info(stock):
     elements = root.findall('.//items/item')
     stock.append_listing_info(elements)
     return stock
+
+
+# 주식관련사채정보
+def dispatch_bond_info(stock):
+    queries = {"isin": stock.id,
+               "numOfRows": 10, "pageNo": 1}
+    query_string = urlencode(queries)
+    url = urljoin(HOST, "getXrcStkStatInfoN1") + \
+        '?'+query_string+'&serviceKey='+KEY
+    response = requests.get(url)
+    root = ET.fromstring(response.text)
+    elements = root.findall('.//items/item')
+    stock.append_listing_info(elements)
+    return stock
+
+

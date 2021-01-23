@@ -38,7 +38,7 @@ def stock_short(page_num, market):
 
 # 주식 기본 정보
 def dispatch_basic(stock):
-    queries = {"shortIsin": stock.short_id,
+    queries = {"shortIsin": stock.shotnIsin,
                "numOfRows": 10, "pageNo": 1}
     query_string = urlencode(queries)
     url = urljoin(HOST, "getStkIsinByShortIsinN1") + \
@@ -78,3 +78,15 @@ def dispatch_bond_info(stock):
     return stock
 
 
+# 주식관련사채 행사조건정보 
+def dispatch_option_info(stock):
+    queries = {"bondIsin": stock.id,
+               "numOfRows": 10, "pageNo": 1}
+    query_string = urlencode(queries)
+    url = urljoin(HOST, "getXrcStkStatInfoN1") + \
+        '?'+query_string+'&serviceKey='+KEY
+    response = requests.get(url)
+    root = ET.fromstring(response.text)
+    elements = root.findall('.//items/item')
+    stock.append_listing_info(elements)
+    return stock
